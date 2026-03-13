@@ -118,6 +118,28 @@ Le meilleur modèle global, avec la meilleure capacité de discernement sur l'en
 2.  **LSTM :** Val_Accuracy ~91%, très bon mais peine légèrement plus sur la différenciation CPU vs Memory.
 3.  **Transformer (Attention) :** Val_Accuracy ~91%, performances comparables au LSTM. Le mécanisme d'attention global n'a pas apporté de plus-value déterminante par rapport à la détection locale de motifs du CNN.
 
-*   **Objectif Suivant :** Étape finale, sauvegarde des modèles et perspectives (application future).
+#### Conclusion de l'Étape 7
+Le modèle CNN 1D a été sélectionné comme le plus performant (F1-score et Temps d'entraînement/inférence). Il a été sauvegardé au format `.h5` pour une utilisation ultérieure.
 
-
+### 🔮 Étape 8 : Perspectives et Applications Futures (13/03/2026)
+
+L'objectif final évoqué dans le cahier des charges est la capacité à identifier un programme complet (ex: *Navigateur Web*, *Compilateur* ou *Éditeur de Texte*) à partir de ses traces globales. 
+
+Notre modèle actuel sait identifier des "micro-tâches" de 50 secondes (CPU, Disque, Mémoire). Comment passer à l'échelle supérieure d'une application entière ?
+
+#### Approche Proposée : Le Modèle Hiérarchique (À 2 Niveaux)
+**Niveau 1 : Le Classifieur de Micro-tâches (Notre CNN 1D actuel)**
+*   On analyse le flux continu de l'ordinateur.
+*   Le modèle CNN 1D "étiquette" chaque bloc de 50 secondes : *[CPU, CPU, DISK, MEMORY, CPU, DISK...]*
+*   On obtient ainsi une "macro-séquence" d'étiquettes, qui agit comme une signature temporelle d'activités.
+
+**Niveau 2 : Le Modèle Séquentiel de Haut Niveau (LSTM ou Transformer)**
+*   Ce modèle de haut niveau ne lit plus les millions de statistiques CPU/RAM. Il lit uniquement la **macro-séquence** générée par le Niveau 1.
+*   **Par exemple :** S'il voit une séquence composée de beaucoup d'écritures disque courtes et répétées avec des pics CPU intenses (ce qui correspond à la compilation de nombreux petits fichiers), il dira : **"C'est un Compilateur (ex: GCC)"**.
+*   S'il voit des charges CPU fortes mais avec beaucoup d'accès mémoire très aléatoires (chargement de DOM, JavaScript, images), il dira : **"C'est un Navigateur Web (ex: Chrome)"**.
+
+#### Avantages de cette approche
+*   **Modularité :** Réduction de la complexité. Le modèle de Niveau 2 est très léger car il ne lit qu'une séquence de 0, 1 et 2 (les classes de micro-tâches).
+*   **Explicabilité :** On peut tracer la décision. *"L'application est considérée comme un compilateur à cause de cette phase de forte écriture disque identifiée à la minute 3"*..
+
+
