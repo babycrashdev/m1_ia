@@ -104,5 +104,20 @@ Contrairement aux modèles précédents, le Transformer utilise le mécanisme d'
 *   **GlobalAveragePooling1D :** Condense l'information de toute la séquence de manière plus globale que le MaxPooling du CNN.
 *   **LayerNormalization :** Technique cruciale pour stabiliser l'apprentissage des Transformers en normalisant les activations entre les couches.
 
-*   **Objectif Suivant :** Évaluation finale et comparaison des trois modèles (Étape 7).
+#### Résultats de l'entraînement (Transformer)
+*   **Précision finale (Accuracy) :** ~90.6%
+*   **Précision de validation (Val_Accuracy) :** ~91.0%
+*   **Analyse du F1-Score :** Le modèle avec mécanisme d'attention (Transformer) atteint un F1-score de 0.92 pour le CPU et 1.00 pour le DISK. Cependant, pour la catégorie MEMORY, le rappel (recall) est de 0.59.
+*   **Observation :** Bien que les Transformers soient extrêmement puissants sur des données textuelles ou des séries temporelles longues, sur cette tâche spécifique de classification de traces CPU/Disque/Mémoire, l'approche locale par filtres (CNN 1D) reste la plus performante. Le Transformer semble avoir des difficultés similaires au LSTM pour distinguer les accès mémoire complexes de l'activité CPU résiduelle.
+
+### 🏆 Étape 7 : Conclusion et Synthèse des Modèles (13/03/2026)
+
+#### Récapitulatif des Modèles
+Le meilleur modèle global, avec la meilleure capacité de discernement sur l'ensemble des classes (y compris la catégorie difficile "MEMORY"), est le **Modèle 2 (CNN 1D)**.
+1.  **CNN 1D :** Val_Accuracy ~92%, excellent pour identifier rapidement les signatures de pics à l'aide de ses filtres glissants.
+2.  **LSTM :** Val_Accuracy ~91%, très bon mais peine légèrement plus sur la différenciation CPU vs Memory.
+3.  **Transformer (Attention) :** Val_Accuracy ~91%, performances comparables au LSTM. Le mécanisme d'attention global n'a pas apporté de plus-value déterminante par rapport à la détection locale de motifs du CNN.
+
+*   **Objectif Suivant :** Étape finale, sauvegarde des modèles et perspectives (application future).
+
 
