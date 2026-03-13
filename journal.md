@@ -19,4 +19,8 @@ Ce fichier sert à documenter chaque étape du projet pour faciliter la rédacti
 *   **Action :** Création du Notebook `Projet_ia.ipynb` et du Journal de bord.
 *   **Infrastructure :** Activation du GPU T4 sur Google Colab pour accélérer l'entraînement des modèles.
 *   **Données :** Récupération via le dépôt [ts-data-for-workload-classification](https://github.com/phuongntmse/ts-data-for-workload-classification).
-*   **Objectif Suivant :** Passer à l'étape 2 (Exploration et Préparation des Données).
+### 🔍 Étape 2 : Exploration et Préparation des Données (13/03/2026)
+*   **Action :** Visualisation des séries temporelles (CPU, Disk, Memory).
+*   **Observation :** Les signatures visuelles diffèrent selon le type d'activité, ce qui valide l'approche par classification de séries temporelles.
+*   **Objectif Suivant :** Normalisation et création des fenêtres temporelles (Sliding Window).
+
