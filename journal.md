@@ -17,4 +17,6 @@ Ce fichier sert à documenter chaque étape du projet pour faciliter la rédacti
 
 ### 📜 Étape 1 : Configuration de l'environnement (13/03/2026)
 *   **Action :** Création du Notebook `Projet_ia.ipynb` et du Journal de bord.
-*   **Objectif Suivant :** Connecter Colab aux données du projet.
+*   **Infrastructure :** Activation du GPU T4 sur Google Colab pour accélérer l'entraînement des modèles.
+*   **Données :** Récupération via le dépôt [ts-data-for-workload-classification](https://github.com/phuongntmse/ts-data-for-workload-classification).
+*   **Objectif Suivant :** Passer à l'étape 2 (Exploration et Préparation des Données).
