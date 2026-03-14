@@ -52,6 +52,36 @@ Le travail demandé consiste à tester et comparer trois approches différentes 
     \item Les modèles plus récents basés sur le mécanisme d'attention (Transformers).
 \end{itemize}
 
+\chapter{Présentation et préparation des données}
+
+\section{Origine des données}
+Les données utilisées proviennent d'un dépôt public regroupant des traces d'exécutions d'outils de tests de charge. Chaque échantillon est un fichier CSV contenant plusieurs colonnes de mesures système prises à intervalles réguliers.
+
+\section{Exploration visuelle}
+Avant de traiter les données, nous avons visualisé les signatures caractéristiques de chaque catégorie. Par exemple, une activité CPU intense se traduit par une charge élevée et constante sur le processeur, tandis qu'une activité disque montre des pics lors des phases de lecture ou d'écriture.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{capture/PremiereVisualisation.png}
+    \caption{Visualisation initiale d'une trace système}
+    \label{fig:visu_initiale}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{capture/ComparaisonSignature.png}
+    \caption{Comparaison des signatures CPU, Disque et Mémoire}
+    \label{fig:signatures}
+\end{figure}
+
+\section{Prétraitement}
+Pour que les modèles puissent apprendre efficacement, les données subissent plusieurs transformations :
+\begin{itemize}
+    \item \textbf{Sélection des colonnes} : Nous retenons l'usage global du CPU, l'occupation de la RAM et les taux de lecture/écriture disque.
+    \item \textbf{Normalisation} : Les valeurs sont ramenées entre 0 et 1 pour éviter que les grandes unités (comme les octets de mémoire) n'écrasent les petites (pourcentages CPU).
+    \item \textbf{Fenêtrage} : Les données sont découpées en séquences de 50 unités de temps. C'est ce bloc de 50 points qui sera donné en entrée aux modèles.
+\end{itemize}
+
 \chapter{Modèle 1 : LSTM (Long Short-Term Memory)}
 
 \section{Théorie et fonctionnement}
@@ -95,36 +125,38 @@ Le modèle obtient une précision globale de \textbf{91\%}. Cependant, l'analyse
 \end{itemize}
 
 \chapter{Modèle 2 : CNN 1D (Convolutional Neural Network)}
-% Prochaine étape : Section CNN 1D
 
-\chapter{Présentation et préparation des données}
+\section{Théorie et fonctionnement}
+Habituellement utilisé pour l'analyse d'images (2D), le réseau de neurones convolutionnel (CNN) peut être adapté aux séries temporelles en utilisant des convolutions 1D. Au lieu de regarder l'image entière, le modèle fait glisser des filtres le long de la série temporelle pour détecter des motifs locaux (pics, transitions brusques, oscillations spécifiques).
 
-\section{Origine des données}
-Les données utilisées proviennent d'un dépôt public regroupant des traces d'exécutions d'outils de tests de charge. Chaque échantillon est un fichier CSV contenant plusieurs colonnes de mesures système prises à intervalles réguliers.
+L'avantage du CNN par rapport au LSTM est sa capacité à détecter des signatures de formes précises sans avoir besoin de "retenir" toute l'histoire de la séquence.
 
-\section{Exploration visuelle}
-Avant de traiter les données, nous avons visualisé les signatures caractéristiques de chaque catégorie. Par exemple, une activité CPU intense se traduit par une charge élevée et constante sur le processeur, tandis qu'une activité disque montre des pics lors des phases de lecture ou d'écriture.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{capture/PremiereVisualisation.png}
-    \caption{Visualisation initiale d'une trace système}
-    \label{fig:visu_initiale}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=1\textwidth]{capture/ComparaisonSignature.png}
-    \caption{Comparaison des signatures CPU, Disque et Mémoire}
-    \label{fig:signatures}
-\end{figure}
-
-\section{Prétraitement}
-Pour que les modèles puissent apprendre efficacement, les données subissent plusieurs transformations :
+\section{Architecture implémentée}
+Le modèle CNN 1D repose sur l'architecture suivante :
 \begin{itemize}
-    \item \textbf{Sélection des colonnes} : Nous retenons l'usage global du CPU, l'occupation de la RAM et les taux de lecture/écriture disque.
-    \item \textbf{Normalisation} : Les valeurs sont ramenées entre 0 et 1 pour éviter que les grandes unités (comme les octets de mémoire) n'écrasent les petites (pourcentages CPU).
-    \item \textbf{Fenêtrage} : Les données sont découpées en séquences de 50 unités de temps. C'est ce bloc de 50 points qui sera donné en entrée aux modèles.
+    \item \textbf{Couche Conv1D} : 64 filtres avec une taille de noyau (kernel) de 3 pour extraire les caractéristiques locales.
+    \item \textbf{MaxPooling1D} : Réduit la dimension temporelle en ne gardant que les valeurs les plus significatives de chaque zone.
+    \item \textbf{Flatten} : Transforme les cartes de caractéristiques en un vecteur plat pour la classification finale.
+    \item \textbf{Dense et Dropout} : Couches classiques pour l'interprétation finale et la régularisation.
 \end{itemize}
+
+\section{Résultats et analyse}
+Le CNN 1D montre une légère amélioration par rapport au LSTM avec une précision globale de \textbf{92\%}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{capture/CourbeCNN1.png}
+    \caption{Courbe d'apprentissage du modèle CNN 1D}
+    \label{fig:courbe_cnn}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{capture/MatriceCNN1.png}
+    \caption{Matrice de confusion du modèle CNN 1D}
+    \label{fig:matrice_cnn}
+\end{figure}
+
+L'amélioration se situe principalement sur la classe \textbf{Mémoire}, où le rappel passe à \textbf{0.61}. Bien que la confusion avec le CPU persiste, les filtres de convolution semblent mieux isoler certaines signatures spécifiques aux accès RAM que le mécanisme de mémoire du LSTM.
 
 \end{document}
