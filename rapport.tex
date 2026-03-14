@@ -28,8 +28,8 @@
 }
 
 % --- Informations du document ---
-\title{Rapport de Projet M1 IA \\ Classification de Séries Temporelles pour la Supervision Système}
-\author{Projet M1 IA}
+\title{Rapport de Projet IA - M1 TI \\ Classification de Séries Temporelles}
+\author{LACATON Damien - BOUZOM Lukas}
 \date{\today}
 
 \begin{document}
@@ -40,32 +40,49 @@
 
 \chapter{Introduction}
 
-Ce projet s'inscrit dans le cadre du module d'intelligence artificielle en Master 1. L'objectif est de classer des séries temporelles issues de la supervision de systèmes informatiques. Ces données représentent l'activité de composants essentiels comme le processeur (CPU), le disque et la mémoire vive (RAM).
+Ce projet fait partie de l'UE IA pour les systèmes cyber-physiques en Master 1. L'objectif est de faire de la classification de séries temporelles. Ces données représentent des traces d'activités de processeur (CPU), de disque et de mémoire vive (RAM). 
 
-L'enjeu est de pouvoir identifier automatiquement le type d'activité à partir de traces d'exécution. Dans un contexte réel, cela permettrait de surveiller l'état de santé d'un serveur ou d'identifier des comportements anormaux.
+Le but est de pouvoir identifier automatiquement de quel type d'activité il s'agit à partir de traces d'exécution.
 
 \section{Objectifs du projet}
-Le travail demandé consiste à tester et comparer trois approches différentes :
+Le travail consiste à tester et comparer trois approches différentes :
 \begin{itemize}
     \item Les réseaux de neurones récurrents de type LSTM.
     \item Les réseaux de neurones convolutionnels (CNN 1D).
     \item Les modèles plus récents basés sur le mécanisme d'attention (Transformers).
 \end{itemize}
 
+Puis proposer des pistes susceptibles de répondre au problème identifié afin de déterminer si les séquences de traces d’exécution proviennent d’un navigateur web, d’un compilateur, d’un logiciel de traitement de texte, etc.
+
 \chapter{Présentation et préparation des données}
 
 \section{Origine des données}
-Les données utilisées proviennent d'un dépôt public regroupant des traces d'exécutions d'outils de tests de charge. Chaque échantillon est un fichier CSV contenant plusieurs colonnes de mesures système prises à intervalles réguliers.
-
-\section{Exploration visuelle}
-Avant de traiter les données, nous avons visualisé les signatures caractéristiques de chaque catégorie. Par exemple, une activité CPU intense se traduit par une charge élevée et constante sur le processeur, tandis qu'une activité disque montre des pics lors des phases de lecture ou d'écriture.
+Les données utilisées proviennent d'un dépôt GitHub public regroupant des traces d'exécution de CPU. Chaque échantillon correspond à un fichier CSV qui regroupe plusieurs colonnes de mesures du système, relevées à des intervalles réguliers.\\
+\url{https://github.com/phuongntmse/ts-data-for-workload-classification}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{capture/PremiereVisualisation.png}
-    \caption{Visualisation initiale d'une trace système}
-    \label{fig:visu_initiale}
+    \includegraphics[width=1\textwidth]{capture/OrigineDonee.png}
+    \caption{Benchmark Configuration Example}
+    \label{fig:origine}
 \end{figure}
+
+\newpage
+\section{Analyse de l'équilibre des classes}
+Après avoir extrait toutes les séquences, nous avons analysé la répartition des données entre les trois catégories. On observe que les classes ne sont pas équilibrées : le CPU représente la majorité des données, alors que nous disposons de moins de données pour la mémoire et le disque
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{capture/RepartitionDonee.png}
+    \caption{Répartition des séquences par classe (CPU, Disque, Mémoire)}
+    \label{fig:repartition}
+\end{figure}
+
+Ce déséquilibre important a une influence directe sur l'apprentissage. Les modèles auront tendance à mieux reconnaître la classe CPU car ils ont plus d'exemples pour apprendre sa signature.
+
+\newpage
+\section{Exploration visuelle}
+Avant de traiter les données, nous avons visualisé les signatures de chaque catégorie. Par exemple, une activité intense du CPU correspond à une charge élevée et continue du processeur, tandis qu'une activité du disque montre des pics lors des phases de lecture ou d'écriture. Enfin, l'activité de la mémoire se manifeste par une occupation assez constante de la RAM, sans les variations brusques observées pour le disque.
 
 \begin{figure}[h]
     \centering
