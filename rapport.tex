@@ -52,6 +52,51 @@ Le travail demandé consiste à tester et comparer trois approches différentes 
     \item Les modèles plus récents basés sur le mécanisme d'attention (Transformers).
 \end{itemize}
 
+\chapter{Modèle 1 : LSTM (Long Short-Term Memory)}
+
+\section{Théorie et fonctionnement}
+Le LSTM est un type de réseau de neurones récurrent (RNN) conçu pour traiter des données séquentielles. Contrairement à un réseau classique, il possède une "mémoire" lui permettant de retenir des informations sur le long terme. Cette architecture est idéale pour nos traces système, car un pic d'activité CPU n'a de sens que s'il est analysé dans son contexte temporel.
+
+Le fonctionnement repose sur des "portes" (gates) qui décident quelles informations passées doivent être conservées, mises à jour ou oubliées.
+
+\section{Architecture implémentée}
+Pour notre projet, nous avons construit un modèle avec les caractéristiques suivantes :
+\begin{itemize}
+    \item \textbf{Couche LSTM} : 64 unités pour capturer la dynamique des 4 variables d'entrée.
+    \item \textbf{Dropout (20\%)} : Une sécurité pour éviter le sur-apprentissage en désactivant aléatoirement certains neurones pendant l'entraînement.
+    \item \textbf{Couche Dense} : 32 neurones avec activation ReLU pour la prise de décision.
+    \item \textbf{Couche de sortie} : 3 neurones avec activation Softmax pour obtenir une probabilité sur les classes (CPU, Disque, Mémoire).
+\end{itemize}
+
+L'entraînement a été réalisé sur 15 époques avec une taille de lot (batch size) de 64.
+
+\section{Résultats et analyse}
+Le modèle obtient une précision globale de \textbf{91\%}. Cependant, l'analyse détaillée montre des disparités selon les classes.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{capture/CourbeLSTM1.png}
+    \caption{Courbe d'apprentissage du modèle LSTM (Accuracy et Loss)}
+    \label{fig:courbe_lstm}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{capture/MatriceLSTM1.png}
+    \caption{Matrice de confusion du modèle LSTM}
+    \label{fig:matrice_lstm}
+\end{figure}
+
+\subsection{Performance par catégorie}
+\begin{itemize}
+    \item \textbf{Disque} : Le score est parfait (F1-score de 1.00). La signature des accès disque est très marquée et ne laisse aucune place à l'erreur.
+    \item \textbf{CPU} : Très bien identifié avec un score de 0.92.
+    \item \textbf{Mémoire} : C'est le point faible du modèle avec un rappel (recall) de seulement \textbf{0.59}. Une partie des activités mémoire est confondue avec le CPU. Cela s'explique par le fait que certaines opérations de gestion de la RAM sollicitent aussi le processeur d'une manière similaire à un calcul de fond.
+\end{itemize}
+
+\chapter{Modèle 2 : CNN 1D (Convolutional Neural Network)}
+% Prochaine étape : Section CNN 1D
+
 \chapter{Présentation et préparation des données}
 
 \section{Origine des données}
