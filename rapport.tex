@@ -159,4 +159,67 @@ Le CNN 1D montre une légère amélioration par rapport au LSTM avec une précis
 
 L'amélioration se situe principalement sur la classe \textbf{Mémoire}, où le rappel passe à \textbf{0.61}. Bien que la confusion avec le CPU persiste, les filtres de convolution semblent mieux isoler certaines signatures spécifiques aux accès RAM que le mécanisme de mémoire du LSTM.
 
+\chapter{Modèle 3 : Time Series Transformer}
+
+\section{Théorie et fonctionnement}
+Le Transformer est l'architecture la plus récente testée dans ce projet. Contrairement aux modèles précédents qui traitent la séquence point par point (LSTM) ou par zones locales (CNN), le Transformer utilise un mécanisme d' \textbf{Attention}. Cela lui permet de calculer des relations entre n'importe quels points de la fenêtre de 50, même s'ils sont éloignés.
+
+Dans notre cas, cela signifie que si un pic CPU à l'instant $t=5$ est lié à une chute de RAM à l'instant $t=45$, le modèle peut capturer cette dépendance directement.
+
+\section{Architecture implémentée}
+\begin{itemize}
+    \item \textbf{Multi-Head Attention} : Utilisation de 4 têtes d'attention pour analyser les données selon différentes perspectives en parallèle.
+    \item \textbf{Global Average Pooling} : Condense l'information de toute la séquence.
+    \item \textbf{Normalisation par couche} : Stabilise l'apprentissage, ce qui est crucial pour les Transformers qui peuvent être instables lors de l'entraînement.
+\end{itemize}
+
+\section{Résultats et analyse}
+Le Transformer obtient une précision de \textbf{89\%}. C'est le score le plus faible des trois approches.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{capture/CourbeTransformer1.png}
+    \caption{Courbe d'apprentissage du modèle Transformer}
+    \label{fig:courbe_transformer}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{capture/MatriceTransformer1.png}
+    \caption{Matrice de confusion du modèle Transformer}
+    \label{fig:matrice_transformer}
+\end{figure}
+
+L'analyse du rappel pour la classe \textbf{Mémoire} (0.59) montre que ce modèle rencontre les mêmes difficultés que le LSTM. Bien que très puissant sur des séquences très longues, le mécanisme d'attention globale n'apporte pas de gain sur nos fenêtres de 50 points par rapport à la simplicité des filtres du CNN 1D.
+
+\chapter{Synthèse et Perspectives}
+
+\section{Comparaison des modèles}
+Le tableau ci-dessous résume les performances obtenues :
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Modèle} & \textbf{Précision Globale} & \textbf{Rappel (Mémoire)} & \textbf{F1-Score (CPU)} \\ \hline
+LSTM            & 91\%                       & 0.59                      & 0.92                    \\ \hline
+\textbf{CNN 1D} & \textbf{92\%}              & \textbf{0.61}             & \textbf{0.93}           \\ \hline
+Transformer     & 89\%                       & 0.59                      & 0.90                    \\ \hline
+\end{tabular}
+\caption{Synthèse des performances comparées}
+\end{table}
+
+Le \textbf{CNN 1D} est le modèle le plus performant pour ce problème spécifique. Il offre le meilleur compromis entre détection des pics système et temps d'exécution.
+
+\section{Perspectives : Vers une application réelle}
+Pour passer de l'identification de "micro-tâches" (50 secondes) à l'identification d'une application entière (ex: Chrome, GCC), nous proposons une \textbf{approche hiérarchique} :
+
+\begin{enumerate}
+    \item \textbf{Niveau 1} : Notre CNN 1D actuel étiquette chaque bloc de 50 secondes. On obtient une séquence d'étiquettes du type $[CPU, CPU, DISK, MEMORY, \dots]$.
+    \item \textbf{Niveau 2} : Un second modèle (léger) analyse cette "macro-séquence" d'étiquettes pour reconnaître la signature d'un logiciel complet.
+\end{enumerate}
+
+\section{Conclusion}
+Ce projet a permis de démontrer l'efficacité du Deep Learning pour la supervision IT. Si le CNN 1D s'est montré le plus robuste, la confusion persistante entre CPU et Mémoire souligne la difficulté intrinsèque de distinguer ces deux activités qui partagent souvent des ressources communes au niveau physique.
+
 \end{document}
