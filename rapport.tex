@@ -67,20 +67,7 @@ Les données utilisées proviennent d'un dépôt GitHub public regroupant des tr
     \label{fig:origine}
 \end{figure}
 
-\newpage
-\section{Analyse de l'équilibre des classes}
-Après avoir extrait toutes les séquences, nous avons analysé la répartition des données entre les trois catégories. On observe que les classes ne sont pas équilibrées : le CPU représente la majorité des données, alors que nous disposons de moins de données pour la mémoire et le disque
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=1\textwidth]{capture/RepartitionDonee.png}
-    \caption{Répartition des séquences par classe (CPU, Disque, Mémoire)}
-    \label{fig:repartition}
-\end{figure}
-
-Ce déséquilibre important a une influence directe sur l'apprentissage. Les modèles auront tendance à mieux reconnaître la classe CPU car ils ont plus d'exemples pour apprendre sa signature.
-
-\newpage
 \section{Exploration visuelle}
 Avant de traiter les données, nous avons visualisé les signatures de chaque catégorie. Par exemple, une activité intense du CPU correspond à une charge élevée et continue du processeur, tandis qu'une activité du disque montre des pics lors des phases de lecture ou d'écriture. Enfin, l'activité de la mémoire se manifeste par une occupation assez constante de la RAM, sans les variations brusques observées pour le disque.
 
@@ -91,6 +78,7 @@ Avant de traiter les données, nous avons visualisé les signatures de chaque ca
     \label{fig:signatures}
 \end{figure}
 
+\newpage
 \section{Préparation des Données}
 Pour que les modèles puissent apprendre efficacement, il faut appliquer plusieurs étapes aux données :
 
@@ -104,16 +92,37 @@ Pour que les modèles puissent apprendre efficacement, il faut appliquer plusieu
     \end{enumerate}
     \item \textbf{Normalisation} : Afin de pouvoir comparer les valeurs plus facilement, nous les ramenons sur un intervalle commun entre 0 et 1 grâce à \textit{MinMaxScaler}. Cela permet l'unicité des données, en évitant que certaines valeurs soient exprimées en pourcentage comme l'activité CPU et d'autres en octets comme la mémoire ; on pourra donc se les représenter dans un même graphe afin de permettre un meilleur apprentissage des modèles.
     \item \textbf{Fenêtrage} : Les données sont découpées en séquences de 50 unités de temps. Pour les modèles LSTM et CNN, c'est crucial afin qu'ils capturent l'activité sur un intervalle de temps plutôt qu'à un instant T. C'est ce bloc de 50 points qui sera donné en entrée aux modèles.
+    \item \textbf{Labels} : Pour pouvoir entraîner nos modèles, il faut étiqueter nos données ; pour cela, nous avons déterminé que \textbf{CPU = 0, DISQUE = 1 et MÉMOIRE = 2}.
 \end{itemize}
 
-L'image ci-dessous illustre le résultat de ce traitement. On observe que pour chaque classe, les quatre variables sont désormais à la même échelle, ce qui permet de comparer leur dynamique au sein d'une même fenêtre de 50 points.
+L'image ci-dessous représente les données après leur préparation. On observe que les quatre variables sont désormais à la même échelle, ce qui permet de les comparer sur une fenêtre de 50 points.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{capture/VisluationTraitement.png}
-    \caption{Visualisation de fenêtres de 50 points après normalisation pour chaque classe}
+    \caption{Visualisation de fenêtres de 50 points après normalisation}
     \label{fig:traitement}
 \end{figure}
+
+La préparation des données nous a permis de constituer un dataset comportant :
+\begin{itemize}
+    \item 35 928 séquences
+    \item 50 unités de longueur
+    \item 4 variables
+\end{itemize}
+    
+\newpage
+\section{Analyse de l'équilibre des classes}
+Après avoir extrait toutes les séquences, nous avons analysé la répartition des données entre les trois catégories. On observe que les classes ne sont pas équilibrées : le CPU représente la majorité des données, alors nous disposons de moins de données pour la mémoire et le disque
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{capture/RepartitionDonee.png}
+    \caption{Répartition des séquences par classe (CPU, Disque, Mémoire)}
+    \label{fig:repartition}
+\end{figure}
+
+Ce déséquilibre entre les données aura une influence sur l'apprentissage. Les modèles auront tendance à mieux reconnaître la classe CPU, car ils ont plus d'exemples pour apprendre sa signature.
 
 \chapter{Modèle 1 : LSTM (Long Short-Term Memory)}
 
