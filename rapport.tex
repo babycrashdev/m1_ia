@@ -91,13 +91,29 @@ Avant de traiter les données, nous avons visualisé les signatures de chaque ca
     \label{fig:signatures}
 \end{figure}
 
-\section{Prétraitement}
-Pour que les modèles puissent apprendre efficacement, les données subissent plusieurs transformations :
+\section{Préparation des Données}
+Pour que les modèles puissent apprendre efficacement, il faut appliquer plusieurs étapes aux données :
+
 \begin{itemize}
-    \item \textbf{Sélection des colonnes} : Nous retenons l'usage global du CPU, l'occupation de la RAM et les taux de lecture/écriture disque.
-    \item \textbf{Normalisation} : Les valeurs sont ramenées entre 0 et 1 pour éviter que les grandes unités (comme les octets de mémoire) n'écrasent les petites (pourcentages CPU).
-    \item \textbf{Fenêtrage} : Les données sont découpées en séquences de 50 unités de temps. C'est ce bloc de 50 points qui sera donné en entrée aux modèles.
+    \item \textbf{Sélection des données} : Nous retenons 4 variables clés :
+    \begin{enumerate}
+        \item \texttt{CpuALL\_usage} : Charge globale du processeur.
+        \item \texttt{memory\_usage\_perce} : Occupation de la RAM.
+        \item \texttt{read\_rate\_during\_time} : Vitesse de lecture disque.
+        \item \texttt{write\_rate\_during\_time} : Vitesse d'écriture disque.
+    \end{enumerate}
+    \item \textbf{Normalisation} : Afin de pouvoir comparer les valeurs plus facilement, nous les ramenons sur un intervalle commun entre 0 et 1 grâce à \textit{MinMaxScaler}. Cela permet l'unicité des données, en évitant que certaines valeurs soient exprimées en pourcentage comme l'activité CPU et d'autres en octets comme la mémoire ; on pourra donc se les représenter dans un même graphe afin de permettre un meilleur apprentissage des modèles.
+    \item \textbf{Fenêtrage} : Les données sont découpées en séquences de 50 unités de temps. Pour les modèles LSTM et CNN, c'est crucial afin qu'ils capturent l'activité sur un intervalle de temps plutôt qu'à un instant T. C'est ce bloc de 50 points qui sera donné en entrée aux modèles.
 \end{itemize}
+
+L'image ci-dessous illustre le résultat de ce traitement. On observe que pour chaque classe, les quatre variables sont désormais à la même échelle, ce qui permet de comparer leur dynamique au sein d'une même fenêtre de 50 points.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{capture/VisluationTraitement.png}
+    \caption{Visualisation de fenêtres de 50 points après normalisation pour chaque classe}
+    \label{fig:traitement}
+\end{figure}
 
 \chapter{Modèle 1 : LSTM (Long Short-Term Memory)}
 
