@@ -171,25 +171,63 @@ La précision de validation est un peu supérieure à la précision d'entraînem
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{capture/CourbeLSTM1.png}
+    \includegraphics[width=1\textwidth]{capture/CourbeLSTM1.png}
     \caption{Courbe d'apprentissage du modèle LSTM (Accuracy et Loss)}
     \label{fig:courbe_lstm}
 \end{figure}
 
-
+\newpage
 \subsection{Performance par catégorie}
 \begin{itemize}
-    \item \textbf{Disque} : Le score est parfait (F1-score de 1.00). La signature des accès disque est très marquée et ne laisse aucune place à l'erreur.
-    \item \textbf{CPU} : Très bien identifié avec un score de 0.92.
-    \item \textbf{Mémoire} : C'est le point faible du modèle avec un rappel (recall) de seulement \textbf{0.59}. Une partie des activités mémoire est confondue avec le CPU. Cela s'explique par le fait que certaines opérations de gestion de la RAM sollicitent aussi le processeur d'une manière similaire à un calcul de fond.
+    \item \textbf{Disque} : Le F1-score est de 1.00. La signature des accès disque est très simple à repérer pour ce modèle, qui se trompe rarement.
+    \item \textbf{CPU} : Un F1-score de 0.92. Le modèle n'a donc aucun problème à reconnaître les activités CPU.
+    \item \textbf{Mémoire} : C'est la catégorie où le modèle a le plus de mal, avec un rappel (recall) de \textbf{0.59}. Une partie des activités mémoire est confondue avec le CPU.
 \end{itemize}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{capture/MatriceLSTM1.png}
+    \includegraphics[width=1\textwidth]{capture/MatriceLSTM1.png}
     \caption{Matrice de confusion du modèle LSTM}
     \label{fig:matrice_lstm}
 \end{figure}
+
+Le tableau suivant détaille la précision, le rappel et le F1-score pour chaque classe :
+
+\begin{center}
+    \small
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{Classe} & \textbf{Précision} & \textbf{Rappel} & \textbf{F1-score} & \textbf{Support} \\ \hline
+        CPU & 0,86 & 0,97 & 0,91 & 3\,832 \\ \hline
+        DISQUE & 1,00 & 0,99 & 1,00 & 1\,920 \\ \hline
+        MÉMOIRE & 0,88 & 0,59 & 0,70 & 1\,434 \\ \hline
+        \hline
+        \textbf{Exactitude (Accuracy)} & \multicolumn{3}{c|}{\textbf{0,90}} & 7\,186 \\ \hline
+        Macro moyenne & 0,91 & 0,85 & 0,87 & 7\,186 \\ \hline
+        Moyenne pondérée & 0,90 & 0,90 & 0,89 & 7\,186 \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsection{Expérimentations et Optimisation}
+Dans le but d'améliorer les performances du modèle LSTM, nous avons effectué plusieurs expérimentations.
+\begin{itemize}
+\item \textbf{Taille de la fenêtre} : Est-ce que la taille de la fenêtre a une influence ?
+\item Test : 25 points ou 100 points.
+\item Observation : À 100 points, le modèle ne reconnaît pas la classe mémoire ; à 25 points, il y a du sur-apprentissage (overfitting).
+\end{itemize}
+\begin{itemize}
+\item \textbf{Taille des lots (Batch size)} : Est-ce que la taille des lots a une influence ?
+\item Test : 32 ou 128.
+\item Observation : À 32, le modèle confond davantage la mémoire et le CPU ; à 128, il y a plus d'erreurs et aucune amélioration.
+\end{itemize}
+\begin{itemize}
+\item \textbf{Dropout} : À partir de quel seuil observe-t-on du sur-apprentissage ?
+\item Test : 10\% ou 30\%.
+\item Observation : À 10\%, il y a du sur-apprentissage (overfitting) ; à 30\%, on note un manque de données lors de l'apprentissage.
+\end{itemize}
+
+Ces tests confirment que nos valeurs initiales offrent le meilleur compromis entre rapidité d'exécution et précision.
 
 \chapter{Modèle 2 : CNN 1D (Convolutional Neural Network)}
 
