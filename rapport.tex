@@ -231,12 +231,12 @@ Ces tests confirment que nos valeurs initiales offrent le meilleur compromis ent
 
 \chapter{Modèle 2 : CNN 1D (Convolutional Neural Network)}
 
-\section{Théorie et fonctionnement}
-Habituellement utilisé pour l'analyse d'images (2D), le réseau de neurones convolutionnel (CNN) peut être adapté aux séries temporelles en utilisant des convolutions 1D. Au lieu de regarder l'image entière, le modèle fait glisser des filtres le long de la série temporelle pour détecter des motifs locaux (pics, transitions brusques, oscillations spécifiques).
+\section{Fonctionnement}
+Le réseau de neurones convolutionnel (CNN) peut être sur des séries temporelles avec des convolutions 1D. Au lieu de regarder l'image entière, le modèle fait glisser des filtres le long de la série temporelle pour détecter des motifs locaux (pics, transitions brusques, oscillations spécifiques).
 
 L'avantage du CNN par rapport au LSTM est sa capacité à détecter des signatures de formes précises sans avoir besoin de "retenir" toute l'histoire de la séquence.
 
-\section{Architecture implémentée}
+\section{Architecture}
 Le modèle CNN 1D repose sur l'architecture suivante :
 \begin{itemize}
     \item \textbf{Couche Conv1D} : 64 filtres avec une taille de noyau (kernel) de 3 pour extraire les caractéristiques locales.
