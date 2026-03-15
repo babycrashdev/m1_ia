@@ -112,7 +112,7 @@ La préparation des données nous a permis de constituer un dataset comportant :
 \end{itemize}
     
 \newpage
-\section{Analyse de l'équilibre des classes}
+\section{Analyse de la répartition des données}
 Après avoir extrait toutes les séquences, nous avons analysé la répartition des données entre les trois catégories. On observe que les classes ne sont pas équilibrées : le CPU représente la majorité des données, alors nous disposons de moins de données pour la mémoire et le disque
 
 \begin{figure}[h]
@@ -126,24 +126,48 @@ Ce déséquilibre entre les données aura une influence sur l'apprentissage. Les
 
 \chapter{Modèle 1 : LSTM (Long Short-Term Memory)}
 
-\section{Théorie et fonctionnement}
-Le LSTM est un type de réseau de neurones récurrent (RNN) conçu pour traiter des données séquentielles. Contrairement à un réseau classique, il possède une "mémoire" lui permettant de retenir des informations sur le long terme. Cette architecture est idéale pour nos traces système, car un pic d'activité CPU n'a de sens que s'il est analysé dans son contexte temporel.
+\section{Fonctionnement}
+Le LSTM est un réseau de neurones utilisé pour traiter des données séquentielles. Ce type de réseau a la particularité de pouvoir retenir des informations sur le long terme. Cela va s'avérer très utile pour reconnaître un pic d'activité CPU, car il faut analyser dans un contexte temporel, ici sur un intervalle de 50 unités de temps.
 
-Le fonctionnement repose sur des "portes" (gates) qui décident quelles informations passées doivent être conservées, mises à jour ou oubliées.
+Son fonctionnement consiste à décider quelles informations passées doivent être conservées, mises à jour ou oubliées, ce qui nous permettra de reconnaître aisément une trace qui s'étale dans le temps (ex : une lecture disque).
 
-\section{Architecture implémentée}
-Pour notre projet, nous avons construit un modèle avec les caractéristiques suivantes :
+\section{Architecture}
+Nous avons construit un modèle avec les caractéristiques suivantes :
 \begin{itemize}
-    \item \textbf{Couche LSTM} : 64 unités pour capturer la dynamique des 4 variables d'entrée.
-    \item \textbf{Dropout (20\%)} : Une sécurité pour éviter le sur-apprentissage en désactivant aléatoirement certains neurones pendant l'entraînement.
-    \item \textbf{Couche Dense} : 32 neurones avec activation ReLU pour la prise de décision.
-    \item \textbf{Couche de sortie} : 3 neurones avec activation Softmax pour obtenir une probabilité sur les classes (CPU, Disque, Mémoire).
+    \item \textbf{Entrée} : Des tenseurs sous la forme (50, 4).
+    \item \textbf{Couche LSTM} : 64 unités pour capturer la dynamique des 4 variables.
+    \item \textbf{Dropout (20\%)} : Pour éviter le sur-apprentissage, 20\% des neurones sont désactivés aléatoirement durant l'entraînement.
+    \item \textbf{Couche Dense} : 32 neurones ReLU pour la prise de décision.
+    \item \textbf{Sortie} : 3 neurones Softmax pour distribuer une probabilité pour chacune des 3 classes (CPU, Disque, Mémoire).
 \end{itemize}
 
-L'entraînement a été réalisé sur 15 époques avec une taille de lot (batch size) de 64.
+L'entraînement est réalisé sur 15 epochs et batch size de 64.
 
+Avec les paramètres suivants :
+\begin{itemize}
+    \item \textbf{Optimiseur} : Adam
+    \item \textbf{Fonction de perte} : \texttt{sparse\_categorical\_crossentropy}
+\end{itemize}
+
+\newpage
 \section{Résultats et analyse}
-Le modèle obtient une précision globale de \textbf{91\%}. Cependant, l'analyse détaillée montre des disparités selon les classes.
+Pour notre dataset, nous avons une répartition des données :
+\begin{itemize}
+    \item \textbf{Entraînement} : \texttt{(28 742, 50, 4)}
+    \item \textbf{Évaluation} : \texttt{(7 186, 50, 4)}
+\end{itemize}
+Les performances globales obtenues à la fin de l'exécution du modèle :
+\begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{} & \textbf{Valeur} \\ \hline
+        Précision finale (\textit{Accuracy}) & \textbf{90,7\%} \\ \hline
+        Précision de validation (\textit{Val\_Accuracy}) & \textbf{91,2\%} \\ \hline
+    \end{tabular}
+\end{center}
+
+La précision de validation est un peu supérieure à la précision d'entraînement ; cela indique que le modèle n'est pas en sur-apprentissage (overfitting).
 
 \begin{figure}[h]
     \centering
@@ -152,12 +176,6 @@ Le modèle obtient une précision globale de \textbf{91\%}. Cependant, l'analyse
     \label{fig:courbe_lstm}
 \end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{capture/MatriceLSTM1.png}
-    \caption{Matrice de confusion du modèle LSTM}
-    \label{fig:matrice_lstm}
-\end{figure}
 
 \subsection{Performance par catégorie}
 \begin{itemize}
@@ -165,6 +183,13 @@ Le modèle obtient une précision globale de \textbf{91\%}. Cependant, l'analyse
     \item \textbf{CPU} : Très bien identifié avec un score de 0.92.
     \item \textbf{Mémoire} : C'est le point faible du modèle avec un rappel (recall) de seulement \textbf{0.59}. Une partie des activités mémoire est confondue avec le CPU. Cela s'explique par le fait que certaines opérations de gestion de la RAM sollicitent aussi le processeur d'une manière similaire à un calcul de fond.
 \end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{capture/MatriceLSTM1.png}
+    \caption{Matrice de confusion du modèle LSTM}
+    \label{fig:matrice_lstm}
+\end{figure}
 
 \chapter{Modèle 2 : CNN 1D (Convolutional Neural Network)}
 
