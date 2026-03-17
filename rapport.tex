@@ -127,7 +127,7 @@ Ce déséquilibre entre les données aura une influence sur l'apprentissage. Les
 \chapter{Modèle 1 : LSTM (Long Short-Term Memory)}
 
 \section{Fonctionnement}
-Le LSTM est un réseau de neurones utilisé pour traiter des données séquentielles. Ce type de réseau a la particularité de pouvoir retenir des informations sur le long terme. Cela va s'avérer très utile pour reconnaître un pic d'activité CPU, car il faut analyser dans un contexte temporel, ici sur un intervalle de 50 unités de temps.
+Le LSTM est un réseau de neurones utilisé pour traiter des données séquentielles. Ce type de réseau a la particularité de pouvoir retenir des informations sur le long terme. Cela va être très utile pour reconnaître un pic d'activité CPU, car il faut analyser dans un contexte temporel, ici sur un intervalle de 50 unités de temps.
 
 Son fonctionnement consiste à décider quelles informations passées doivent être conservées, mises à jour ou oubliées, ce qui nous permettra de reconnaître aisément une trace qui s'étale dans le temps (ex : une lecture disque).
 
@@ -212,19 +212,19 @@ Le tableau suivant détaille la précision, le rappel et le F1-score pour chaque
 \subsection{Expérimentations et Optimisation}
 Dans le but d'améliorer les performances du modèle LSTM, nous avons effectué plusieurs expérimentations.
 \begin{itemize}
-\item \textbf{Taille de la fenêtre} : Est-ce que la taille de la fenêtre a une influence ?
-\item Test : 25 points ou 100 points.
-\item Observation : À 100 points, le modèle ne reconnaît pas la classe mémoire ; à 25 points, il y a du sur-apprentissage (overfitting).
+    \item \textbf{Taille de la fenêtre} : Est-ce que la taille de la fenêtre a une influence ?
+    \item Test : 25 points ou 100 points.
+    \item Observation : À 100 points, le modèle ne reconnaît pas la classe mémoire ; à 25 points, il y a du sur-apprentissage (overfitting).
 \end{itemize}
 \begin{itemize}
-\item \textbf{Taille des lots (Batch size)} : Est-ce que la taille des lots a une influence ?
-\item Test : 32 ou 128.
-\item Observation : À 32, le modèle confond davantage la mémoire et le CPU ; à 128, il y a plus d'erreurs et aucune amélioration.
+    \item \textbf{Taille des lots (Batch size)} : Est-ce que la taille des lots a une influence ?
+    \item Test : 32 ou 128.
+    \item Observation : À 32, le modèle confond davantage la mémoire et le CPU ; à 128, il y a plus d'erreurs et aucune amélioration.
 \end{itemize}
 \begin{itemize}
-\item \textbf{Dropout} : À partir de quel seuil observe-t-on du sur-apprentissage ?
-\item Test : 10\% ou 30\%.
-\item Observation : À 10\%, il y a du sur-apprentissage (overfitting) ; à 30\%, on note un manque de données lors de l'apprentissage.
+    \item \textbf{Dropout} : À partir de quel seuil observe-t-on du sur-apprentissage ?
+    \item Test : 10\% ou 30\%.
+    \item Observation : À 10\%, pas de difference ; à 30\%, on note un manque de données lors de l'apprentissage.
 \end{itemize}
 
 Ces tests confirment que nos valeurs initiales offrent le meilleur compromis entre rapidité d'exécution et précision.
@@ -232,21 +232,48 @@ Ces tests confirment que nos valeurs initiales offrent le meilleur compromis ent
 \chapter{Modèle 2 : CNN 1D (Convolutional Neural Network)}
 
 \section{Fonctionnement}
-Le réseau de neurones convolutionnel (CNN) peut être sur des séries temporelles avec des convolutions 1D. Au lieu de regarder l'image entière, le modèle fait glisser des filtres le long de la série temporelle pour détecter des motifs locaux (pics, transitions brusques, oscillations spécifiques).
+Le réseau de neurones convolutionnel (CNN) peut être utilisé sur des séries temporelles avec des convolutions 1D. Au lieu de regarder une série dans son intégralité, le modèle utilise des filtres pour détecter des motifs (pics, transitions brusques, etc.) sur la série temporelle. 
 
-L'avantage du CNN par rapport au LSTM est sa capacité à détecter des signatures de formes précises sans avoir besoin de "retenir" toute l'histoire de la séquence.
+L'avantage du CNN par rapport au LSTM est sa capacité à repérer des signatures de formes précises sans avoir besoin de les mémoriser.
 
 \section{Architecture}
-Le modèle CNN 1D repose sur l'architecture suivante :
+Pour le modèle CNN 1D, nous avons défini l'architecture suivante :
 \begin{itemize}
-    \item \textbf{Couche Conv1D} : 64 filtres avec une taille de noyau (kernel) de 3 pour extraire les caractéristiques locales.
-    \item \textbf{MaxPooling1D} : Réduit la dimension temporelle en ne gardant que les valeurs les plus significatives de chaque zone.
-    \item \textbf{Flatten} : Transforme les cartes de caractéristiques en un vecteur plat pour la classification finale.
-    \item \textbf{Dense et Dropout} : Couches classiques pour l'interprétation finale et la régularisation.
+    \item \textbf{1re Couche Conv1D} : 64 filtres, une taille de noyau (kernel) de 3 ; pour repérer les motifs simples.
+    \item \textbf{2e Couche Conv1D} : 128 filtres, une taille de noyau (kernel) de 3 ; pour repérer les combinaisons des motifs repérés par la couche précédente.
+    \item \textbf{MaxPooling1D} : Réduit la dimension temporelle par 2, pour ne garder que les valeurs les plus importantes.
+    \item \textbf{Dropout (20\%)} : Pour éviter le sur-apprentissage, 20\% des neurones sont désactivés aléatoirement durant l'entraînement.
+    \item \textbf{Couche Dense} : 32 neurones ReLU pour la prise de décision.
+    \item \textbf{Sortie} : 3 neurones Softmax pour distribuer une probabilité pour chacune des 3 classes (CPU, Disque, Mémoire).
 \end{itemize}
 
+L'entraînement est réalisé sur 15 epochs et batch size de 64.
+
+Avec les paramètres suivants :
+\begin{itemize}
+    \item \textbf{Optimiseur} : Adam
+    \item \textbf{Fonction de perte} : \texttt{sparse\_categorical\_crossentropy}
+\end{itemize}
+
+\newpage
 \section{Résultats et analyse}
-Le CNN 1D montre une légère amélioration par rapport au LSTM avec une précision globale de \textbf{92\%}.
+Pour notre dataset, nous avons une répartition des données :
+\begin{itemize}
+    \item \textbf{Entraînement} : \texttt{(28 742, 50, 4)}
+    \item \textbf{Évaluation} : \texttt{(7 186, 50, 4)}
+\end{itemize}
+Les performances globales obtenues à la fin de l'exécution du modèle :
+\begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{} & \textbf{Valeur} \\ \hline
+        Précision finale (\textit{Accuracy}) & \textbf{91,6\%} \\ \hline
+        Précision de validation (\textit{Val\_Accuracy}) & \textbf{91,8\%} \\ \hline
+    \end{tabular}
+\end{center}
+
+La précision de validation est un peu supérieure à la précision d'entraînement ; cela indique que le modèle n'est pas en sur-apprentissage (overfitting).
 
 \begin{figure}[h]
     \centering
@@ -255,18 +282,84 @@ Le CNN 1D montre une légère amélioration par rapport au LSTM avec une précis
     \label{fig:courbe_cnn}
 \end{figure}
 
+\newpage
+\subsection{Performance par catégorie}
+\begin{itemize}
+    \item \textbf{Disque} : Le F1-score est de 1.00. La signature des accès disque est très simple à repérer pour ce modèle.
+    \item \textbf{CPU} : Un F1-score de 0.92. Le modèle n'a donc aucun problème à reconnaître les activités CPU.
+    \item \textbf{Mémoire} : Ce modèle a egalment plus de mal a reperer les activiter mémoire avec un rappel (recall) de \textbf{0.60}. Une partie des activités mémoire est confondue avec le CPU.
+\end{itemize}
+
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{capture/MatriceCNN1.png}
-    \caption{Matrice de confusion du modèle CNN 1D}
-    \label{fig:matrice_cnn}
+    \includegraphics[width=1\textwidth]{capture/MatriceCNN1.png}
+    \caption{Matrice de confusion du modèle LSTM}
+    \label{fig:matrice_lstm}
 \end{figure}
 
-L'amélioration se situe principalement sur la classe \textbf{Mémoire}, où le rappel passe à \textbf{0.61}. Bien que la confusion avec le CPU persiste, les filtres de convolution semblent mieux isoler certaines signatures spécifiques aux accès RAM que le mécanisme de mémoire du LSTM.
+Le tableau suivant détaille la précision, le rappel et le F1-score pour chaque classe :
+
+\begin{center}
+    \small
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{Classe} & \textbf{Précision} & \textbf{Rappel} & \textbf{F1-score} & \textbf{Support} \\ \hline
+        CPU & 0,87 & 1,00 & 0,93 & 3\,832 \\ \hline
+        DISQUE & 1,00 & 0,99 & 0,99 & 1\,920 \\ \hline
+        MÉMOIRE & 0,99 & 0,60 & 0,75 & 1\,434 \\ \hline
+        \hline
+        \textbf{Exactitude (Accuracy)} & \multicolumn{3}{c|}{\textbf{0,92}} & 7\,186 \\ \hline
+        Macro moyenne & 0,95 & 0,86 & 0,89 & 7\,186 \\ \hline
+        Moyenne pondérée & 0,93 & 0,92 & 0,91 & 7\,186 \\ \hline
+    \end{tabular}
+\end{center}
+
+\subsection{Expérimentations et Optimisation}
+Dans le but d'améliorer les performances du modèle CNN, nous avons effectué plusieurs expérimentations.
+\begin{itemize}
+    \item \textbf{Taille de la fenêtre} : Est-ce que la taille de la fenêtre a une influence ? Faut-il plus de contexte ?
+    \item Test : 25 points ou 100 points.
+    \item Observation : Aucune influence
+\end{itemize}
+\begin{itemize}
+    \item \textbf{Dropout} : À partir de quel seuil observe-t-on du sur-apprentissage ?
+    \item Test : 10\% ou 30\%.
+    \item Observation : À 10\%, aucune différence ; à 30\%, le rappel augmente de 0,01 à 0,02 point.
+\end{itemize}
+\begin{itemize}
+    \item \textbf{Taille des noyaux} : Un noyau plus grand permet de repérer des motifs plus longs.
+    \item Test : 5 ou 9.
+    \item Observation : L'ajout d'une couche \texttt{BatchNormalization()} stabilise l'apprentissage. Avec une taille de 5, aucun changement n'est observé ; avec une taille de 9, le modèle commet plus d'erreurs lors de l'évaluation, ce qui indique un sur-apprentissage (overfitting).
+\end{itemize}
+\begin{itemize}
+    \item \textbf{3e bloc} : Un bloc supplémentaire permet-il d'obtenir de meilleurs résultats ?
+    \item Test : 256 filtres.
+    \item Observation : Aucune amélioration de la précision n'est constatée, les confusions persistent. Cependant, une meilleure stabilité est obtenue.
+\end{itemize}
+\begin{itemize}
+    \item \textbf{Taux d'apprentissage (Learning Rate)} : Configuration d'un taux d'apprentissage plus haut ou plus bas que la valeur par défaut.
+    \item Test : 0,005 ou 0,0005.
+    \item Observation : À 0,0005, les erreurs augmentent lors de l'évaluation ; à 0,005, aucun changement significatif n'est relevé.
+\end{itemize}
+\begin{itemize}
+    \item \textbf{GAP} :
+    \item Test : Remplacement de la couche \texttt{Flatten()} par \texttt{GlobalAveragePooling1D()}.
+    \item Observation : Pas de changement significatif.
+\end{itemize}
+\begin{itemize}
+    \item \textbf{Poids des erreurs} : Rendre les erreurs sur la classe mémoire plus punitives pour augmenter l'attention du modèle sur celle-ci.
+    \item Test : \texttt{poids\_des\_classes = \{0: 1.0, 1: 1.0, 2: 2.0\}}.
+    \item Observation : La précision générale diminue, mais elle augmente pour la classe mémoire. Le modèle prédit la classe mémoire plus souvent, mais perd en précision sur la classe CPU, qu'il confond désormais avec la mémoire.
+\end{itemize}
+
+Ces tests ont permis de définir la meilleure configuration, privilégiant la stabilité et la régularisation : un modèle à 2 ou 3 blocs avec \texttt{BatchNormalization}, un \textit{Dropout} de 0,3 et un noyau de taille 3 ou 5.
+
+L'amélioration porte sur la classe \textbf{Mémoire} ; en rendant les erreurs plus punitives, le rappel passe à \textbf{0.69}, mais la précision générale diminue. La confusion avec le CPU est toujours présente. Les filtres de convolution semblent mieux repérer certaines signatures liées aux accès RAM que le mécanisme de mémoire du LSTM.
 
 \chapter{Modèle 3 : Time Series Transformer}
 
-\section{Théorie et fonctionnement}
+\section{Fonctionnement}
 Le Transformer est l'architecture la plus récente testée dans ce projet. Contrairement aux modèles précédents qui traitent la séquence point par point (LSTM) ou par zones locales (CNN), le Transformer utilise un mécanisme d' \textbf{Attention}. Cela lui permet de calculer des relations entre n'importe quels points de la fenêtre de 50, même s'ils sont éloignés.
 
 Dans notre cas, cela signifie que si un pic CPU à l'instant $t=5$ est lié à une chute de RAM à l'instant $t=45$, le modèle peut capturer cette dépendance directement.
