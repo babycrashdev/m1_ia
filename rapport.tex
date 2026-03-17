@@ -360,46 +360,106 @@ L'amélioration porte sur la classe \textbf{Mémoire} ; en rendant les erreurs p
 \chapter{Modèle 3 : Time Series Transformer}
 
 \section{Fonctionnement}
-Le Transformer est l'architecture qui utilise un mécanisme d'\textbf{Attention}. Le modele vas regarder tout les points de la fenetre et vas etablir un lien etre des points qui lui parait important, même s'ils sont éloignés. Afin de leur assigner un scores.
+Le Transformer est l'architecture qui utilise un mécanisme d'\textbf{Attention}. Le modele analyse simultanément tous les points de la fenetre et calcule un score d’importance par rapport à tous les autres points de la séquence
 
 \section{Architecture}
-Pour le modèle Transformer, nous avons défini l'architecture suivante :
+L'architecture implémentée repose sur un bloc de codage, puis d'une tête de classification :
+
 \begin{itemize}
-    \item \textbf{Multi-Head Attentio} : 4 têtes d'attention
-    \item \textbf{GlobalAveragePooling1D} : 128 filtres, une taille de noyau (kernel) de 3 ; pour repérer les combinaisons des motifs repérés par la couche précédente.
-    \item \textbf{LayerNormalization} : Stabilise l'apprentissage.
+    \item \textbf{Multi-Head Attention} : 4 têtes d'attention. Chaque tête apprend reperer un types de motifs différents.
+    \item \textbf{Layer Normalization} : Stabilise l'apprentissage 
+    \item \textbf{Feed-Forward Network (Conv1D)} : Deux couches de convolution avec un noyau de taille 1 qui fonctionne comme un réseau de neurones, pour les caractéristiques plus complexes.
+    \item \textbf{Connexions Résiduelles} : Evite la dégradation des gradients et facilite l'entraînement du modèles.
+    \item \textbf{Global Average Pooling 1D} : Compresse la séquence en un vecteur unique., qui sera utilisé pour la décision finale.
+    \item \textbf{Couches Denses} : Une série de couches de neurone termine le traitement avant le \textbf{Softmax} à 3 classes.
 \end{itemize}
 
-\section{Architecture implémentée}
-\begin{itemize}
-    \item \textbf{Multi-Head Attention} : Utilisation de 4 têtes d'attention pour analyser les données selon différentes perspectives en parallèle.
-    \item \textbf{Global Average Pooling} : Reduit l'information de toute la séquence.
-    \item \textbf{Normalisation par couche} : Stabilise l'apprentissage
-\end{itemize}
-
+\newpage
 \section{Résultats et analyse}
-Le Transformer obtient une précision de \textbf{89\%}. C'est le score le plus faible des trois approches.
-
+Pour notre dataset, nous avons une répartition des données comme les modèles précédents. Les resulats obtenues pour le Transformer sont :
+\begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Métrique} & \textbf{Valeur} \\ \hline
+        Précision finale (\textit{Accuracy}) & \textbf{89,1\%} \\ \hline
+        Précision de validation (\textit{Val\_Accuracy}) & \textbf{89,5\%} \\ \hline
+    \end{tabular}
+\end{center}
+Absence de sur-apprentissage confirméegrace a la proximité des scores d'entraînement et de validation. Le modèle est légèrement moins performant que le CNN 1D.
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{capture/CourbeTransformer1.png}
+    \includegraphics[width=1\textwidth]{capture/CourbeTransformer1.png}
     \caption{Courbe d'apprentissage du modèle Transformer}
     \label{fig:courbe_transformer}
 \end{figure}
 
+\newpage
+\subsection{Performance par catégorie}
+L'analyse détaillée montre que le Transformer partage les mêmes difficultés que le LSTM :
+\begin{itemize}
+    \item \textbf{Disque} : F1-score de 1.00. Les signatures sont très bien identifiées.
+    \item \textbf{CPU} : F1-score de 0.90. 
+    \item \textbf{Mémoire} : Comme pour les autres modèles, où il y a le plus d'erreur avec un F1-score de 0.71.
+\end{itemize}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{capture/MatriceTransformer1.png}
+    \includegraphics[width=1\textwidth]{capture/MatriceTransformer1.png}
     \caption{Matrice de confusion du modèle Transformer}
     \label{fig:matrice_transformer}
 \end{figure}
+Le tableau suivant détaille la précision, le rappel et le F1-score pour chaque classe :
+\begin{center}
+    \small
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{Classe} & \textbf{Précision} & \textbf{Rappel} & \textbf{F1-score} & \textbf{Support} \\ \hline
+        CPU & 0,86 & 0,98 & 0,92 & 3\,832 \\ \hline
+        DISQUE & 1,00 & 0,99 & 0,99 & 1\,920 \\ \hline
+        MÉMOIRE & 0,92 & 0,58 & 0,71 & 1\,434 \\ \hline
+        \hline
+        \textbf{Exactitude (Accuracy)} & \multicolumn{3}{c|}{\textbf{0,90}} & 7\,186 \\ \hline
+        Macro moyenne & 0,93 & 0,85 & 0,87 & 7\,186 \\ \hline
+        Moyenne pondérée & 0,91 & 0,90 & 0,90 & 7\,186 \\ \hline
+    \end{tabular}
+\end{center}
 
-L'analyse du rappel pour la classe \textbf{Mémoire} (0.59) montre que ce modèle rencontre les mêmes difficultés que le LSTM. Bien que très puissant sur des séquences très longues, le mécanisme d'attention globale n'apporte pas de gain sur nos fenêtres de 50 points par rapport à la simplicité des filtres du CNN 1D.
+\subsection{Expérimentations et Optimisation}
+Plusieurs variantes ont été testées pour optimiser ce modèle :
+\begin{itemize}
+    \item \textbf{Stacking} : Cree plus de blocs \texttt{transformer\_encoder}
+    \item Test : Ajout de 1 ou 2 blocs
+    \item Observation :
+    \item \textbf{Positional Encoding} : Pour definir l'ordre des points dans la sequance
+    \item Test : 
+    \item Observation :
+    \item \textbf{Dimension} : Ajuster head\_size et ff\_dim
+    \item Test : Les passée a 128
+    \item Observation :
+    \item \textbf{Nombre de têtes} : Est ce que le nombre de tete a un influance ?
+    \item Test : 8
+    \item Observation :
+    \item \textbf{GAP} : Cree plus de blocs \texttt{transformer\_encoder}
+    \item Test : Passer ou Ajouter en \texttt{GlobalMaxPooling1D}
+    \item Observation :
+    \item \textbf{Learning Rate} :
+    \item Test : 0,005 ou 0,0005.
+    \item Observation :
+    \item \textbf{Poids des erreurs} : Rendre les erreurs sur la classe mémoire plus punitives pour augmenter l'attention du modèle sur celle-ci.
+    \item Test : \texttt{poids\_des\_classes = \{0: 1.0, 1: 1.0, 2: 2.0\}}.
+    \item Observation :
+\end{itemize}
+Conclusion
+
+\chapter{Test avec d'avantage de donees}
+
+
 
 \chapter{Synthèse et Perspectives}
 
 \section{Comparaison des modèles}
-Le tableau ci-dessous résume les performances obtenues :
+Le tableau ci-dessous résume les performances obtenues une fois les meilleurs paramettre choisi:
 
 \begin{table}[h]
 \centering
