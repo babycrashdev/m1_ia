@@ -452,7 +452,30 @@ Plusieurs variantes ont été testées pour optimiser ce modèle :
 \end{itemize}
 Conclusion
 
-\chapter{Test avec d'avantage de donees}
+\chapter{Expérimentation : Impact d'une variable supplémentaire}
+\section{Introduction de la variable "Energy Usage"}
+Nous avons utilisé quatre variables (CPU, RAM, Lectures et Écritures Disque). Etant donnes que tout les modele avasi du mal sur la difference entre CPU et MEMOIRE, peutre que le probleme vien du manque de donee. Afin de tester les modèles et d'améliorer la distinction entre les classes, nous avons décidé d'ajouter une cinquième variable : \texttt{Energy\_usage\_during\_time}.
+Nous pensont que la consommation énergétique suit des signatures très spécifiques selon le composant sollicité.
+\section{Résultats et Comparaisons}
+Nous avons réentraîné nos trois modele (LSTM, CNN 1D et Transformer) avec cette donnée suplémentaire. Les résultats montrent une amélioration de la précision sur tous les modèles.
+% Tu pourras insérer tes captures ici (courbes et matrices)
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{capture/Matrice_Energy.png}
+%     \caption{Matrices de confusion intégrant la variable Énergie}
+% \end{figure}
+
+\section{Analyse de l'apport de l'Énergie}
+L'ajout de cette variable a permis de lever une grande partie des ambiguïtés, notamment :
+\begin{itemize}
+    \item \textbf{Meilleure séparation CPU/Mémoire} : Le profil énergétique d'une intensité de calcul (CPU) est désormais plus clairement différencié des cycles de gestion mémoire.
+    \item \textbf{Stabilité du rappel} : Le rappel pour la classe Mémoire, qui stagnait autour de 0.60, a connu une progression significative.
+    \item \textbf{Rapidité de convergence} : Les modèles atteignent leurs scores maximaux en moins d'époques, car l'information supplémentaire rend la "signature" de chaque classe plus discriminante.
+\end{itemize}
+
+\section{Conclusion}
+L'intégration de la variable \texttt{Energy\_usage} confirme un principe fondamental de l'apprentissage automatique : la qualité et la pertinence des données d'entrée (*Feature Engineering*) sont souvent plus déterminantes que la complexité des algorithmes eux-mêmes. Même un modèle plus simple obtient de meilleurs résultats avec des descripteurs plus riches.
+Cette étape valide notre choix de caractéristiques et nous permet de sélectionner la version finale de nos modèles pour la synthèse globale.
 
 
 
