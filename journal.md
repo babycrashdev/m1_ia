@@ -187,3 +187,11 @@ Même si le modèle CNN 1D atteint d'excellents scores globaux (~92%), l'apprent
 4.  **Batch Size et Nombre d'Époques :**
     - Réduire la taille de lot (`batch_size=32`) permet au modèle de mettre à jour ses poids plus souvent. En contrepartie, il faut souvent augmenter le nombre d'époques pour lui laisser le temps de parcourir toutes les données.
     - _Mise en garde (Cas pratique) :_ Lors d'un test avec `epochs=30` et `WINDOW_SIZE=100`, nous avons pu observer l'apparition d'**overfitting (sur-apprentissage)**. À l'époque 30, la précision d'entraînement continuait de monter (`accuracy: 0.9367`), alors que la précision de validation régressait ou stagnait (`val_accuracy: 0.9103`) et que la perte de validation augmentait (`val_loss: 0.2674`). Le modèle commençait à mémoriser les données existantes au lieu de comprendre les règles générales. L'utilisation d'un mécanisme de _Early Stopping_ (arrêt prématuré) serait pertinente ici.
+
+
+
+
+
+Energy_usage_during_time plus elever quand j'ai de la charge CPU
+
+c'est cheater

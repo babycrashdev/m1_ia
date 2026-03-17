@@ -83,7 +83,7 @@ Avant de traiter les données, nous avons visualisé les signatures de chaque ca
 Pour que les modèles puissent apprendre efficacement, il faut appliquer plusieurs étapes aux données :
 
 \begin{itemize}
-    \item \textbf{Sélection des données} : Nous retenons 4 variables clés :
+    \item \textbf{Sélection des données} : Nous retenons les 4 variables les plus intéressantes :
     \begin{enumerate}
         \item \texttt{CpuALL\_usage} : Charge globale du processeur.
         \item \texttt{memory\_usage\_perce} : Occupation de la RAM.
@@ -360,15 +360,21 @@ L'amélioration porte sur la classe \textbf{Mémoire} ; en rendant les erreurs p
 \chapter{Modèle 3 : Time Series Transformer}
 
 \section{Fonctionnement}
-Le Transformer est l'architecture la plus récente testée dans ce projet. Contrairement aux modèles précédents qui traitent la séquence point par point (LSTM) ou par zones locales (CNN), le Transformer utilise un mécanisme d' \textbf{Attention}. Cela lui permet de calculer des relations entre n'importe quels points de la fenêtre de 50, même s'ils sont éloignés.
+Le Transformer est l'architecture qui utilise un mécanisme d'\textbf{Attention}. Le modele vas regarder tout les points de la fenetre et vas etablir un lien etre des points qui lui parait important, même s'ils sont éloignés. Afin de leur assigner un scores.
 
-Dans notre cas, cela signifie que si un pic CPU à l'instant $t=5$ est lié à une chute de RAM à l'instant $t=45$, le modèle peut capturer cette dépendance directement.
+\section{Architecture}
+Pour le modèle Transformer, nous avons défini l'architecture suivante :
+\begin{itemize}
+    \item \textbf{Multi-Head Attentio} : 4 têtes d'attention
+    \item \textbf{GlobalAveragePooling1D} : 128 filtres, une taille de noyau (kernel) de 3 ; pour repérer les combinaisons des motifs repérés par la couche précédente.
+    \item \textbf{LayerNormalization} : Stabilise l'apprentissage.
+\end{itemize}
 
 \section{Architecture implémentée}
 \begin{itemize}
     \item \textbf{Multi-Head Attention} : Utilisation de 4 têtes d'attention pour analyser les données selon différentes perspectives en parallèle.
-    \item \textbf{Global Average Pooling} : Condense l'information de toute la séquence.
-    \item \textbf{Normalisation par couche} : Stabilise l'apprentissage, ce qui est crucial pour les Transformers qui peuvent être instables lors de l'entraînement.
+    \item \textbf{Global Average Pooling} : Reduit l'information de toute la séquence.
+    \item \textbf{Normalisation par couche} : Stabilise l'apprentissage
 \end{itemize}
 
 \section{Résultats et analyse}
