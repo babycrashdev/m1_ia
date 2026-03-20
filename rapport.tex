@@ -548,34 +548,13 @@ L'analyse des rapports de classification a permis d'éclairer certains points su
 En conclusion, la précision globale a augmenté sur tous les modèles. L'ajout de la variable sur la consommation électrique s'est révélé être un élément essentiel pour différencier le CPU de la MÉMOIRE.
 
 
-\chapter{Synthèse et Perspectives}
+\chapter{Perspectives}
+Pour une utilisation réelle, capable d'identifier une application à partir d'une trace d'exécution (navigateur, compilateur, traitement de texte), plusieurs pistes sont possibles :
 
-\section{Comparaison des modèles}
-Le tableau ci-dessous résume les performances obtenues une fois les meilleurs paramettre choisi:
+\begin{itemize}
+    \item \textbf{Fenêtres dynamiques} : Actuellement, les modèles utilisent des segments de données définis. En situation réelle, le système devra traiter un flux continu. Il faudrait alors rendre les fenêtres dynamiques ; cela permettrait d'analyser la signature en temps réel et de détecter les différentes étapes d'exécution.
+    \item \textbf{Architecture} : Une approche possible serait d'utiliser une architecture de modèle à deux niveaux. Un premier modèle (comme réalisé dans ce projet) identifierait les séquences principales (CPU, Disque, Mémoire). Ses résultats serviraient d'entrées à un deuxième modèle, utilisé pour reconnaître l'enchaînement de ces phases afin de déterminer le type d'application.
+\end{itemize}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|}
-\hline
-\textbf{Modèle} & \textbf{Précision Globale} & \textbf{Rappel (Mémoire)} & \textbf{F1-Score (CPU)} \\ \hline
-LSTM            & 91\%                       & 0.59                      & 0.92                    \\ \hline
-\textbf{CNN 1D} & \textbf{92\%}              & \textbf{0.61}             & \textbf{0.93}           \\ \hline
-Transformer     & 89\%                       & 0.59                      & 0.90                    \\ \hline
-\end{tabular}
-\caption{Synthèse des performances comparées}
-\end{table}
-
-Le \textbf{CNN 1D} est le modèle le plus performant pour ce problème spécifique. Il offre le meilleur compromis entre détection des pics système et temps d'exécution.
-
-\section{Perspectives : Vers une application réelle}
-Pour passer de l'identification de "micro-tâches" (50 secondes) à l'identification d'une application entière (ex: Chrome, GCC), nous proposons une \textbf{approche hiérarchique} :
-
-\begin{enumerate}
-    \item \textbf{Niveau 1} : Notre CNN 1D actuel étiquette chaque bloc de 50 secondes. On obtient une séquence d'étiquettes du type $[CPU, CPU, DISK, MEMORY, \dots]$.
-    \item \textbf{Niveau 2} : Un second modèle (léger) analyse cette "macro-séquence" d'étiquettes pour reconnaître la signature d'un logiciel complet.
-\end{enumerate}
-
-\section{Conclusion}
-Ce projet a permis de démontrer l'efficacité du Deep Learning pour la supervision IT. Si le CNN 1D s'est montré le plus robuste, la confusion persistante entre CPU et Mémoire souligne la difficulté intrinsèque de distinguer ces deux activités qui partagent souvent des ressources communes au niveau physique.
 
 \end{document}
