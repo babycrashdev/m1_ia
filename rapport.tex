@@ -28,7 +28,11 @@
 }
 
 % --- Informations du document ---
-\title{Rapport de Projet IA - M1 TI \\ Classification de Séries Temporelles}
+\title{Rapport de Projet IA - M1 TI \\ 
+       Classification de Séries Temporelles \\[0.5em] 
+       \large \href{https://colab.research.google.com/drive/1i6QlLAwTT1XtGUdHXpHcEQxaLgihG6oy?usp=sharing}{Lien vers Google Colab }\\[0.5em] 
+       \large \href{https://colab.research.google.com/github/babycrashdev/m1_ia/blob/main/Projet_ia.ipynb?authuser=1#scrollTo=VQG3wyvkDg5H}{En cas de probleme lien vers Google Colab de Dev }\\[0.5em] 
+       \large \href{https://colab.research.google.com/github/babycrashdev/m1_ia/blob/main/Projet_ia.ipynb}{Lien vers le Github si besoin}}
 \author{LACATON Damien - BOUZOM Lukas}
 \date{\today}
 
@@ -40,7 +44,7 @@
 
 \chapter{Introduction}
 
-Ce projet fait partie de l'UE IA pour les systèmes cyber-physiques en Master 1. L'objectif est de faire de la classification de séries temporelles. Ces données représentent des traces d'activités de processeur (CPU), de disque et de mémoire vive (RAM). 
+Ce projet fait partie de l'UE IA pour les systèmes cyber-physiques en Master 1. L'objectif est de faire de la classification de séries temporelles. Nous avons à notre disposition des données représentent des traces d'activités de processeur (CPU), de disque et de mémoire vive (RAM). 
 
 Le but est de pouvoir identifier automatiquement de quel type d'activité il s'agit à partir de traces d'exécution.
 
@@ -63,7 +67,6 @@ Les données utilisées proviennent d'un dépôt GitHub public regroupant des tr
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{capture/OrigineDonee.png}
-    \caption{Benchmark Configuration Example}
     \label{fig:origine}
 \end{figure}
 
@@ -556,5 +559,10 @@ Pour une utilisation réelle, capable d'identifier une application à partir d'u
     \item \textbf{Architecture} : Une approche possible serait d'utiliser une architecture de modèle à deux niveaux. Un premier modèle (comme réalisé dans ce projet) identifierait les séquences principales (CPU, Disque, Mémoire). Ses résultats serviraient d'entrées à un deuxième modèle, utilisé pour reconnaître l'enchaînement de ces phases afin de déterminer le type d'application.
 \end{itemize}
 
+\vfill
+\begin{center}
+    \textit{Pour ce projet, nous avons utilisé l'IA Gemini pour la correction de bugs, la visualisation des résultats et l'aide à la rédaction du rapport.}
+\end{center}
 
 \end{document}
+
