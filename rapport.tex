@@ -32,7 +32,7 @@
        Classification de Séries Temporelles \\[0.5em] 
        \large \href{https://colab.research.google.com/drive/1i6QlLAwTT1XtGUdHXpHcEQxaLgihG6oy?usp=sharing}{Lien vers Google Colab }\\[0.5em] 
        \large \href{https://colab.research.google.com/github/babycrashdev/m1_ia/blob/main/Projet_ia.ipynb?authuser=1#scrollTo=VQG3wyvkDg5H}{En cas de probleme lien vers Google Colab de Dev }\\[0.5em] 
-       \large \href{https://colab.research.google.com/github/babycrashdev/m1_ia/blob/main/Projet_ia.ipynb}{Lien vers le Github si besoin}}
+       \large \href{https://github.com/babycrashdev/m1_ia}{Lien vers le Github}}
 \author{LACATON Damien - BOUZOM Lukas}
 \date{\today}
 
@@ -72,7 +72,7 @@ Les données utilisées proviennent d'un dépôt GitHub public regroupant des tr
 
 
 \section{Exploration visuelle}
-Avant de traiter les données, nous avons visualisé les signatures de chaque catégorie. Par exemple, une activité intense du CPU correspond à une charge élevée et continue du processeur, tandis qu'une activité du disque montre des pics lors des phases de lecture ou d'écriture. Enfin, l'activité de la mémoire se manifeste par une occupation assez constante de la RAM, sans les variations brusques observées pour le disque.
+Avant de traiter les données, nous avons visualisé les signatures de chaque catégorie. Par exemple, une activité intense du CPU correspond à une charge élevée et continue du processeur, alors qu'une activité du disque montre des pics lors des phases de lecture ou d'écriture. Enfin, l'activité de la mémoire se manifeste par une occupation assez constante de la RAM, sans les variations brusques observées pour le disque.
 
 \begin{figure}[h]
     \centering
@@ -94,7 +94,7 @@ Pour que les modèles puissent apprendre efficacement, il faut appliquer plusieu
         \item \texttt{write\_rate\_during\_time} : Vitesse d'écriture disque.
     \end{enumerate}
     \item \textbf{Normalisation} : Afin de pouvoir comparer les valeurs plus facilement, nous les ramenons sur un intervalle commun entre 0 et 1 grâce à \textit{MinMaxScaler}. Cela permet l'unicité des données, en évitant que certaines valeurs soient exprimées en pourcentage comme l'activité CPU et d'autres en octets comme la mémoire ; on pourra donc se les représenter dans un même graphe afin de permettre un meilleur apprentissage des modèles.
-    \item \textbf{Fenêtrage} : Les données sont découpées en séquences de 50 unités de temps. Pour les modèles LSTM et CNN, c'est crucial afin qu'ils capturent l'activité sur un intervalle de temps plutôt qu'à un instant T. C'est ce bloc de 50 points qui sera donné en entrée aux modèles.
+    \item \textbf{Fenêtrage} : Les données sont découpées en séquences de 50 unités de temps. Pour les modèles LSTM et CNN, c'est obligatoire pour qu'ils capturent l'activité sur un intervalle de temps plutôt qu'à un instant T. C'est ce bloc de 50 points qui sera donné en entrée aux modèles.
     \item \textbf{Labels} : Pour pouvoir entraîner nos modèles, il faut étiqueter nos données ; pour cela, nous avons déterminé que \textbf{CPU = 0, DISQUE = 1 et MÉMOIRE = 2}.
 \end{itemize}
 
@@ -107,12 +107,9 @@ L'image ci-dessous représente les données après leur préparation. On observe
     \label{fig:traitement}
 \end{figure}
 
-La préparation des données nous a permis de constituer un dataset comportant :
-\begin{itemize}
-    \item 35 928 séquences
-    \item 50 unités de longueur
-    \item 4 variables
-\end{itemize}
+La préparation des données nous a permis de constituer un dataset comportant : 35 928 séquences
+de 50 unités de longueur avec 4 variables.
+
     
 \newpage
 \section{Analyse de la répartition des données}
@@ -132,7 +129,7 @@ Ce déséquilibre entre les données aura une influence sur l'apprentissage. Les
 \section{Fonctionnement}
 Le LSTM est un réseau de neurones utilisé pour traiter des données séquentielles. Ce type de réseau a la particularité de pouvoir retenir des informations sur le long terme. Cela va être très utile pour reconnaître un pic d'activité CPU, car il faut analyser dans un contexte temporel, ici sur un intervalle de 50 unités de temps.
 
-Son fonctionnement consiste à décider quelles informations passées doivent être conservées, mises à jour ou oubliées, ce qui nous permettra de reconnaître aisément une trace qui s'étale dans le temps (ex : une lecture disque).
+Son fonctionnement consiste à décider quelles informations passées doivent être conservées, mises à jour ou oubliées, ce qui nous permettra de reconnaître aisément une trace qui s'étale dans le temps (une lecture disque par exemple).
 
 \section{Architecture}
 Nous avons construit un modèle avec les caractéristiques suivantes :
@@ -148,7 +145,7 @@ L'entraînement est réalisé sur 15 epochs et batch size de 64.
 
 Avec les paramètres suivants :
 \begin{itemize}
-    \item \textbf{Optimiseur} : Adam
+    \item \textbf{Learning Rate} : Adam
     \item \textbf{Fonction de perte} : \texttt{sparse\_categorical\_crossentropy}
 \end{itemize}
 
@@ -230,7 +227,7 @@ Dans le but d'améliorer les performances du modèle LSTM, nous avons effectué 
     \item Observation : À 10\%, pas de difference ; à 30\%, on note un manque de données lors de l'apprentissage.
 \end{itemize}
 
-Ces tests confirment que nos valeurs initiales offrent le meilleur compromis entre rapidité d'exécution et précision.
+Ces tests confirment que nos valeurs initiales offrent le meilleur compromis entre efficacité et précision.
 
 \chapter{Modèle 2 : CNN 1D (Convolutional Neural Network)}
 
@@ -254,7 +251,7 @@ L'entraînement est réalisé sur 15 epochs et batch size de 64.
 
 Avec les paramètres suivants :
 \begin{itemize}
-    \item \textbf{Optimiseur} : Adam
+    \item \textbf{Learning Rate} : Adam
     \item \textbf{Fonction de perte} : \texttt{sparse\_categorical\_crossentropy}
 \end{itemize}
 
@@ -363,18 +360,18 @@ L'amélioration porte sur la classe \textbf{Mémoire} ; en rendant les erreurs p
 \chapter{Modèle 3 : Time Series Transformer}
 
 \section{Fonctionnement}
-Le Transformer est l'architecture qui utilise un mécanisme d'\textbf{Attention}. Le modele analyse simultanément tous les points de la fenetre et calcule un score d’importance par rapport à tous les autres points de la séquence
+Le Transformer est l'architecture qui utilise un mécanisme d'attention. Le modele analyse simultanément tous les points de la fenetre et calcule un score d’importance par rapport à tous les autres points de la séquence
 
 \section{Architecture}
 L'architecture implémentée repose sur un bloc de codage, puis d'une tête de classification :
 
 \begin{itemize}
-    \item \textbf{Multi-Head Attention} : 4 têtes d'attention. Chaque tête apprend reperer un types de motifs différents.
+    \item \textbf{Multi-Head Attention} : 4 têtes d'attention. Chaque tête apprend à reperer un types de motifs différents.
     \item \textbf{Layer Normalization} : Stabilise l'apprentissage 
     \item \textbf{Feed-Forward Network (Conv1D)} : Deux couches de convolution avec un noyau de taille 1 qui fonctionne comme un réseau de neurones, pour les caractéristiques plus complexes.
     \item \textbf{Connexions Résiduelles} : Evite la dégradation des gradients et facilite l'entraînement du modèles.
-    \item \textbf{Global Average Pooling 1D} : Compresse la séquence en un vecteur unique., qui sera utilisé pour la décision finale.
-    \item \textbf{Couches Denses} : Une série de couches de neurone termine le traitement avant le \textbf{Softmax} à 3 classes.
+    \item \textbf{Global Average Pooling 1D} : Compresse la séquence en un vecteur unique, qui sera utilisé pour la décision finale.
+    \item \textbf{Couches Denses} : Une série de couches de neurone termine le traitement avant le softmax à 3 classes.
 \end{itemize}
 
 \newpage
@@ -389,7 +386,7 @@ Pour notre dataset, nous avons une répartition des données comme les modèles 
         Précision de validation (\textit{Val\_Accuracy}) & \textbf{89,5\%} \\ \hline
     \end{tabular}
 \end{center}
-Absence de sur-apprentissage confirméegrace a la proximité des scores d'entraînement et de validation. Le modèle est légèrement moins performant que le CNN 1D.
+Absence de sur-apprentissage confirmée grace à la proximité des scores d'entraînement et de validation. Le modèle est légèrement moins performant que le CNN 1D.
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{capture/CourbeTransformer1.png}
@@ -454,13 +451,28 @@ Plusieurs variantes ont été testées pour optimiser ce modèle :
 
 Tous ces tests montrent que l'architecture Transformer a atteint son plus haut taux de performance avec le jeu de données actuel. L'augmentation de la complexité du modèle n'a pas apporté d'amélioration significative de la précision et a même montré du sur-apprentissage (\textit{overfitting}). 
 
-L'utilisation du \textit{Global Average Pooling} était un meilleur choix que le \textit{Global Max Pooling}, ce qui confirme que la moyenne globale des caractéristiques temporelles est plus efficace pour identifier les signatures.
+L'utilisation du Global Average Pooling était un meilleur choix que le Global Max Pooling, ce qui confirme que la moyenne globale des caractéristiques temporelles est plus efficace pour identifier les signatures.
 
 \chapter{Expérimentation : Une variable supplémentaire}
 \section{Ajout de la variable "Energy Usage"}
-Nous avons utilisé quatre variables (CPU, RAM, Lectures et Écritures Disque).Étant donné que tous les modèles présentaient des difficultés à distinguer le CPU de la mémoire, l'hypothèse d'un manque de données a été formulée. Afin d'améliorer la distinction entre les classes, une cinquième variable a été ajoutée : \texttt{Energy\_usage\_during\_time}.
+Nous avons utilisé quatre variables (CPU, RAM, Lectures et Écritures Disque). Étant donné que tous les modèles présentaient des difficultés à distinguer le CPU de la mémoire, nous avons pensé à ajouter une donnée à notre dataset. Afin d'améliorer la distinction entre les classes, une cinquième variable a été ajoutée : \texttt{Energy\_usage\_during\_time}.
 La consommation énergétique est supposée suivre des signatures spécifiques selon le composant sollicité.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{capture/ComparaisonSignatureEnergie.png}
+    \caption{Comparaison des signatures CPU, Disque et Mémoire}
+    \label{fig:signatures}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{capture/VisluationTraitementEnergie.png}
+    \caption{Visualisation de fenêtres de 50 points après normalisation}
+    \label{fig:traitement}
+\end{figure}
+
+\newpage 
 \section{Résultats et Comparaisons}
 Les trois modèles (LSTM, CNN 1D et Transformer) ont été réentraînés avec cette donnée supplémentaire. Les résultats indiquent une amélioration de la précision pour l'ensemble des modèles.
 \begin{figure}[htbp]
@@ -548,11 +560,11 @@ L'analyse des rapports de classification a permis d'éclairer certains points su
     \item \textbf{Convergence des performances} : Le CNN 1D et le Transformer affichent des résultats similaires (94 \% d'accuracy). Le modèle LSTM est toujours légèrement en dessous, même en augmentant le nombre d'époques à 25 (92 \% d'accuracy).
 \end{itemize}
 
-En conclusion, la précision globale a augmenté sur tous les modèles. L'ajout de la variable sur la consommation électrique s'est révélé être un élément essentiel pour différencier le CPU de la MÉMOIRE.
+En conclusion, la précision globale a augmenté sur tous les modèles. L'ajout de la variable sur la consommation électrique s'est révélé être une bonne idée pour différencier le CPU de la mémoire.
 
 
 \chapter{Perspectives}
-Pour une utilisation réelle, capable d'identifier une application à partir d'une trace d'exécution (navigateur, compilateur, traitement de texte), plusieurs pistes sont possibles :
+Pour une utilisation réelle, capable d'identifier une application à partir d'une trace d'exécution (navigateur, compilateur, traitement de texte) :
 
 \begin{itemize}
     \item \textbf{Fenêtres dynamiques} : Actuellement, les modèles utilisent des segments de données définis. En situation réelle, le système devra traiter un flux continu. Il faudrait alors rendre les fenêtres dynamiques ; cela permettrait d'analyser la signature en temps réel et de détecter les différentes étapes d'exécution.
